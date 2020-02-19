@@ -1,78 +1,30 @@
-#Square Secret Code
-#The squate secret code mechanism first removes any space from the original message. 
-#Then it lays down the message in a row of 8 columns. 
-#The coded message is then obtained by reading down the columns going left to right.
+#Survivor
+#There are 50 people standing in a circle in position 1 to 50. The person standing at position 1 has a sword. He kills the next person i.e. standing at position 2 and pass on the sword to the immediate next i.e. person standing at position 3. Now the person at position 3 does the same and it goes on until only one survives.
 #
-#For example, the message is “The quick brown fox jumps over the lazy dog”.
-#
-#Then the message would be laid out as below:
-#
-#thequick
-#brownfox
-#jumpsove
-#rthelazy
-#dog
-#The code message would be as below:
-#
-#tbjrd hruto eomhg qwpe unsl ifoa covz kxey
-#Tbjrd hruto eomhg qwpe unsl ifoa covz kxey
-#Write a script that accepts a message from command line and prints the equivalent coded message.
-
-
+#Write a script to find out the survivor.
 use strict;
 use warnings;
 use Data::Dumper;
 
-
-my $askForInput = 1;
-my $errorMessage = '';
-my $columnLength = 8;
-
-while ($askForInput){
-
-    if ($errorMessage ){
-        print "ERROR: $errorMessage\n";
-    }
-    my $input = getInput();
-    print "Input: '$input'\n";
-    if ($input =~ /\S+/){
-        $errorMessage = '';
-        my $messageEncoded = encodeMessage($input);
-        print "\n>>>>>>>>>>>>>>>>Encoded message: $messageEncoded\n";
-    } else {
-       $errorMessage =  "ERROR, no valid message was entered\n";		
-    }	
-    if ($input =~ /^q|quit$/i){
-        print "Bye bye\n";
-        $askForInput = 0;
-    }	
+my $numberPeople = 50;
+my $numberPeopleAlive = $numberPeople;
+my @aPeople = ();
+foreach my $position (1..$numberPeople){
+    my $nextPosition = $position == $numberPeople ? 1 : $position +1;    
+    my %hTmp = (  'nextPosition' => $nextPosition);
+    push (@aPeople, \%hTmp);
 }
 
-sub getInput {   
-    print "------------------------------\n";
-    print "Enter your message to be coded\nEnter quit(q) to exit\n";
-    print "------------------------------\n";	
-    my $input = <STDIN>;
-    chomp($input);	
-    return $input;
-}
 
-sub encodeMessage {
-    my $message = shift;
-    my @aSubMessages = ();
-    my $messageEncoded = '';
-    $message =~ s%\s+%%g;	
-    my @aEncodedGroups = ();
-    my @aMessage = split ('', $message);
-    foreach my $indexMessage  (0..$#aMessage){
-        my $indexSubgroup = $indexMessage % $columnLength ;
-        unless  (defined $aEncodedGroups[$indexSubgroup]){
-            $aEncodedGroups[$indexSubgroup] = '';
-        }
-        $aEncodedGroups[$indexSubgroup] .= $aMessage[$indexMessage]; #t
-    }  
-    $messageEncoded = join(' ', @aEncodedGroups);    
-    return $messageEncoded ;
-}
- 
- 
+my $swordPosition  = 1;
+while ($numberPeopleAlive > 1){  
+
+    my $killPosition = $aPeople[ $swordPosition - 1 ]->{'nextPosition'};
+    $aPeople[ $swordPosition - 1 ]->{'nextPosition'}  = $aPeople[ $killPosition - 1 ]->{'nextPosition'};
+    $swordPosition = $aPeople[ $killPosition - 1 ]->{'nextPosition'};
+    $numberPeopleAlive--;
+
+} 
+
+print "Last Position Alive : $swordPosition\n";
+
